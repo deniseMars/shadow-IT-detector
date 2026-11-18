@@ -6,7 +6,7 @@ A Python proof of concept for identifying package-repository activity in existin
 
 - Python 3.9 or later for the full template; standard library only.
 - For the macOS inventory helper, supported package managers must already be installed.
-- No Feedly token is required to collect or analyse local data.
+- No API token is required to collect or analyse local data.
 
 ## Option 1: Analyse existing repository logs
 
@@ -78,19 +78,19 @@ The helper reads application names and versions from the current-user and machin
 
 Each run creates a timestamped folder under `inventory/windows/` containing `packages.csv`, `packages.json`, `raw.json` and `scan.log`. The CSV uses the same `ecosystem,name,version,source` columns as the Mac helper. Review `incomplete_sources` and `skipped_sources`: a missing package manager is recorded as skipped; query errors are recorded as incomplete. Exit codes are 0 for collection without recorded errors, 1 for an unsupported OS, and 2 for partial collection with errors. A zero exit code does not imply complete coverage or absence of vulnerabilities.
 
-Coverage is partial: Microsoft Store apps, portable apps, project dependencies, other Python interpreters and virtual environments, WSL, containers and other users may be absent. Registry records may be stale or lack versions. Entries from different sources can overlap. This is an installed-package inventory, not a historical installation/network log or a Feedly assessment.
+Coverage is partial: Microsoft Store apps, portable apps, project dependencies, other Python interpreters and virtual environments, WSL, containers and other users may be absent. Registry records may be stale or lack versions. Entries from different sources can overlap. This is an installed-package inventory, not a historical installation/network log or a vulnerability assessment.
 
 The script contains no personal inventory or credentials. Its generated reports can include usernames and local paths; review before sharing and exclude `inventory/` from GitHub.
 
 Validation note: syntax, command construction and report generation were checked with simulated inputs on macOS. A live Windows run is still required to verify collection on your target machine.
 
-## Analyse the results with Feedly
+## Analyse the results with threat intelligence
 
-These scripts do not call Feedly or include a scheduler. Take `packages.csv` to an assistant with an authorised Feedly Threat Graph MCP connection, or build an API integration using your Feedly account's supported endpoints and permissions.
+These scripts collect local inventory and analyse logs; they do not query threat-intelligence services or include a scheduler. Use `packages.csv` with your chosen vulnerability database or an assistant connected to an authorised threat-intelligence service.
 
 Suggested prompt:
 
-> Use the connected Feedly Threat Graph MCP to investigate this package inventory for known vulnerabilities and exploitation reports. Match package ecosystem and exact installed version where evidence permits. Distinguish confirmed affected versions from uncertain product matches, and public exploit availability from observed active exploitation. Return package, installed version, CVE, exploitation status, evidence links, remediation and unknowns. Absence of Feedly coverage is not proof of safety. Do not infer version applicability from a package-name match alone.
+> Investigate this package inventory for known vulnerabilities and exploitation reports using the available vulnerability and threat-intelligence sources. Match package ecosystem and exact installed version where evidence permits. Distinguish confirmed affected versions from uncertain product matches, and public exploit availability from observed active exploitation. Return package, installed version, CVE, exploitation status, evidence links, remediation and unknowns. Absence of coverage is not proof of safety. Do not infer version applicability from a package-name match alone.
 
 Version-aware advisory matching may require an additional vulnerability data source. Log-derived names without versions are discovery leads rather than confirmed vulnerable installations.
 
@@ -102,6 +102,6 @@ Before scheduling, validate coverage, preserve timestamped outputs and handle pa
 
 Reports can contain usernames, local paths, URLs and command-line arguments, including sensitive data present in source logs. Review and redact before uploading or sharing. No live inventory or credentials are included in this template.
 
-## Origin and changes
+## Changes in this version
 
-Based on the Feedly sample at https://github.com/feedly/sample-customer-scripts/tree/main/python/Shadow-IT-Detector . The detector's hard-coded test argument override has been removed and usage text now matches its filename. This documentation reflects the implemented CSV/TSV behaviour. The macOS inventory helper is a separate addition.
+The detector's hard-coded test argument override has been removed and usage text now matches its filename. This documentation reflects the implemented CSV/TSV behaviour. Separate macOS and Windows inventory helpers have been added.
